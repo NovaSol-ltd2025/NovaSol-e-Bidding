@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบประเมินราคา Bidding - โนวาโซล</title>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/v/bs5/dt-2.0.8/r-3.0.2/datatables.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #7c3aed;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --info-color: #06b6d4;
+            --dark-color: #1f2937;
+            --light-color: #f3f4f6;
+            --disqualified-color: #6b7280;
+        }
+
+        body {
+            font-family: 'Sarabun', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+
+        /* ==================== LOGIN PAGE ==================== */
+        #loginPage {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 24px;
+            padding: 48px 40px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.25);
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .login-logo {
+            max-width: 120px;
+            max-height: 80px;
+            width: auto;
+            height: auto;
+            margin-bottom: 16px;
+            border-radius: 10px;
+        }
+
+        .login-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 4px;
+        }
+
+        .login-subtitle {
+            font-size: 0.95rem;
+            color: #6b7280;
+            margin-bottom: 32px;
+        }
+
+        .login-input-group {
+            position: relative;
+            margin-bottom: 18px;
+        }
+
+        .login-input-group .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 1rem;
+        }
+
+        .login-input-group input {
+            width: 100%;
+            padding: 13px 14px 13px 42px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-family: 'Sarabun', sans-serif;
+            font-size: 1rem;
+            transition: all 0.25s;
+            outline: none;
+        }
+
+        .login-input-group input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+        }
+
+        .login-input-group .toggle-password {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            font-size: 1rem;
+        }
+
+        .login-input-group .toggle-password:hover { color: var(--primary-color); }
+
+        .btn-login {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            font-family: 'Sarabun', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(37,99,235,0.3);
+            margin-top: 8px;
+        }
+
+        .btn-login:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37,99,235,0.4);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .login-error {
+            background: #fee2e2;
+            color: #dc2626;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 0.9rem;
+            margin-top: 14px;
+            display: none;
+        }
+
+        .login-gas-section {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        .login-gas-label {
+            font-size: 0.8rem;
+            color: #9ca3af;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .login-gas-input {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: #6b7280;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .login-gas-input:focus { border-color: var(--primary-color); }
+
+        /* ==================== TOPBAR (after login) ==================== */
+        #mainPage { display: none; }
+
+        .topbar {
+            background: white;
+            border-radius: 16px;
+            padding: 12px 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .topbar-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.95rem;
+            flex-shrink: 0;
+        }
+
+        .user-info-name {
+            font-weight: 700;
+            color: var(--dark-color);
+            font-size: 0.95rem;
+            line-height: 1.2;
+        }
+
+        .user-info-role {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .role-admin { background: #dbeafe; color: var(--primary-color); }
+        .role-user  { background: #d1fae5; color: #065f46; }
+
+        .btn-logout {
+            background: none;
+            border: 2px solid #e5e7eb;
+            color: #6b7280;
+            border-radius: 10px;
+            padding: 7px 16px;
+            font-family: 'Sarabun', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-logout:hover {
+            border-color: var(--danger-color);
+            color: var(--danger-color);
+            background: #fee2e2;
+        }
+
+        /* ==================== MAIN LAYOUT (same as original) ==================== */
+        .main-container { max-width: 1400px; margin: 0 auto; padding-left: 15px; padding-right: 15px; }
+        .header-section { background: white; border-radius: 20px; padding: 30px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; }
+        .company-logo { max-width: 180px; max-height: 120px; width: auto; height: auto; margin-bottom: 20px; border-radius: 12px; box-shadow: 0 8px 25px rgba(37,99,235,0.15); transition: all 0.3s ease; border: 3px solid rgba(37,99,235,0.1); }
+        .company-logo:hover { transform: scale(1.05); box-shadow: 0 12px 35px rgba(37,99,235,0.25); }
+        .company-name { font-size: 2rem; font-weight: bold; color: var(--dark-color); margin-bottom: 10px; }
+        .system-title { font-size: 1.5rem; color: var(--secondary-color); font-weight: 600; }
+        .search-history-box { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .form-card { background: white; border-radius: 20px; padding: 30px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .section-title { font-size: 1.5rem; font-weight: bold; color: var(--primary-color); margin-bottom: 20px; padding-bottom: 10px; border-bottom: 3px solid var(--primary-color); }
+        .form-label { font-weight: 600; color: var(--dark-color); margin-bottom: 8px; }
+        .form-control, .form-select { border: 2px solid #e5e7eb; border-radius: 10px; padding: 12px; transition: all 0.3s; }
+        .form-control:focus, .form-select:focus { border-color: var(--primary-color); box-shadow: 0 0 0 0.2rem rgba(37,99,235,0.25); }
+        .form-control[readonly] { background-color: #f3f4f6; opacity: 1; }
+        .contract-period-highlight { background-color: #eff6ff !important; border-color: var(--primary-color) !important; font-weight: bold; color: var(--primary-color) !important; font-size: 1.1rem; }
+        .btn-calculate { background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%); color: white; border: none; padding: 15px 40px; border-radius: 50px; font-size: 1.2rem; font-weight: bold; transition: all 0.3s; box-shadow: 0 5px 15px rgba(16,185,129,0.3); }
+        .btn-calculate:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(16,185,129,0.4); color: white; }
+        .btn-save { background: linear-gradient(135deg, var(--primary-color) 0%, #1e40af 100%); color: white; border: none; padding: 12px 30px; border-radius: 50px; font-weight: bold; transition: all 0.3s; }
+        .btn-save:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37,99,235,0.4); color: white; }
+        .btn-print { background: linear-gradient(135deg, var(--warning-color) 0%, #d97706 100%); color: white; border: none; padding: 12px 30px; border-radius: 50px; font-weight: bold; transition: all 0.3s; }
+        .btn-print:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(245,158,11,0.4); color: white; }
+        .btn-history { background: linear-gradient(135deg, var(--info-color) 0%, #0891b2 100%); color: white; border: none; padding: 12px 30px; border-radius: 50px; font-weight: bold; transition: all 0.3s; }
+        .btn-history:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(6,182,212,0.4); color: white; }
+        .btn-search { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: white; border: none; padding: 10px 20px; border-radius: 50px; font-weight: bold; }
+        .btn-search:hover { background: #4f46e5; transform: translateY(-2px); }
+        .btn-secondary { border-radius: 50px; padding: 12px 30px; font-weight: bold; }
+        .btn-delete { background: var(--danger-color); color: white; border: none; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem; }
+        .btn-delete:hover { background: #dc2626; color: white; }
+        .btn-primary.btn-sm, .btn-warning.btn-sm { padding: 4px 10px; font-size: 0.9rem; line-height: 1.5; border-radius: 0.2rem; }
+        .table-container { background: white; border-radius: 20px; padding: 30px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); overflow-x: auto; }
+        .table { margin-bottom: 0; vertical-align: middle; }
+        .table thead { background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); color: white; }
+        .table thead th { border: none; padding: 15px; font-weight: bold; white-space: nowrap; }
+        .table tbody tr { transition: all 0.3s; }
+        .table tbody tr:hover { background-color: #f3f4f6; }
+        .difference-profit { color: var(--success-color); font-weight: bold; }
+        .difference-loss { color: var(--danger-color); font-weight: bold; }
+        .monthly-1-table .table thead { background: linear-gradient(135deg, var(--info-color) 0%, #0891b2 100%); }
+        .monthly-1-table .section-title { color: var(--info-color); border-bottom-color: var(--info-color); }
+        .icon-box { width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); border-radius: 15px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.8rem; margin-bottom: 15px; }
+        .stat-card { background: white; border-radius: 15px; padding: 20px; text-align: center; transition: all 0.3s; border: 2px solid #e5e7eb; height: 100%; }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .stat-card .h4 { color: var(--primary-color); font-weight: 700; }
+        .stat-card.total-workers-card { border-left: 5px solid var(--primary-color) !important; }
+        .stat-card.warning-card { border-left: 5px solid var(--warning-color) !important; }
+        .stat-card.warning-card .icon-box { background: linear-gradient(135deg, var(--warning-color) 0%, #d97706 100%) !important; }
+        .stat-card.warning-card .h4 { color: var(--warning-color) !important; }
+        .stat-card.bg-success { border-left: 5px solid var(--success-color) !important; background-color: #d1fae5 !important; }
+        .stat-card.bg-success .icon-box { background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%) !important; }
+        .stat-card.bg-success .h4 { color: var(--dark-color) !important; }
+        .stat-card.bg-danger { border-left: 5px solid var(--danger-color) !important; background-color: #fee2e2 !important; }
+        .stat-card.bg-danger .icon-box { background: linear-gradient(135deg, var(--danger-color) 0%, #dc2626 100%) !important; }
+        .stat-card.bg-danger .h4 { color: var(--dark-color) !important; }
+        #monthSelector { font-weight: bold; color: var(--primary-color); border-radius: 8px; }
+        #monthSelector option.contract-month { background-color: #dbeafe; font-weight: bold; }
+        .status-badge { display: inline-block; padding: 0.35em 0.65em; font-size: .85em; font-weight: 700; line-height: 1; color: #fff; text-align: center; white-space: nowrap; vertical-align: baseline; border-radius: 0.25rem; }
+        .status-badge.status-win { background-color: var(--success-color); }
+        .status-badge.status-loss { background-color: var(--danger-color); }
+        .status-badge.status-pending { background-color: #6b7280; }
+        .status-badge.status-disqualified { background-color: var(--disqualified-color); }
+        .modal-header { border-bottom: none; }
+        .modal-body { padding-top: 0; }
+        .sheets-card { background: white; border-radius: 20px; padding: 25px 30px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); border-left: 6px solid #10b981; }
+        .sheets-card .section-title { color: #10b981; border-bottom-color: #10b981; }
+        .sheets-url-input { font-family: monospace; font-size: 0.85rem; }
+
+        /* ซ่อน Admin-only elements สำหรับ user ธรรมดา */
+        .admin-only { display: none; }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; padding: 0; }
+            .main-container { max-width: 100%; }
+            .table-container, .form-card { box-shadow: none; page-break-inside: avoid; }
+        }
+        @media (max-width: 768px) {
+            .company-logo { max-width: 140px; max-height: 90px; }
+            .company-name { font-size: 1.5rem; }
+            .system-title { font-size: 1.2rem; }
+            .login-card { padding: 32px 24px; }
+            .topbar { flex-direction: column; gap: 10px; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ==================== LOGIN PAGE ==================== -->
+<div id="loginPage">
+    <div class="login-card">
+        <div class="text-center mb-2">
+            <img src="https://i.postimg.cc/FHGkmGKB/NOVASOL-1/logo.png"
+                 alt="โนวาโซล"
+                 class="login-logo"
+                 onerror="this.style.display='none'">
+        </div>
+        <div class="text-center">
+            <div class="login-title">ห้างหุ้นส่วนจำกัด โนวาโซล</div>
+            <div class="login-subtitle">ระบบประเมินราคา Bidding — กรุณาเข้าสู่ระบบ</div>
+        </div>
+
+        <div class="login-input-group">
+            <i class="fas fa-user input-icon"></i>
+            <input type="text" id="loginUsername" placeholder="ชื่อผู้ใช้งาน (Username)" autocomplete="username">
+        </div>
+
+        <div class="login-input-group">
+            <i class="fas fa-lock input-icon"></i>
+            <input type="password" id="loginPassword" placeholder="รหัสผ่าน (Password)" autocomplete="current-password">
+            <button type="button" class="toggle-password" id="togglePwd" title="แสดง/ซ่อนรหัสผ่าน">
+                <i class="fas fa-eye" id="togglePwdIcon"></i>
+            </button>
+        </div>
+
+        <button class="btn-login" id="btnLogin">
+            <i class="fas fa-sign-in-alt me-2"></i> เข้าสู่ระบบ
+        </button>
+
+        <div class="login-error" id="loginError"></div>
+
+        <!-- GAS URL (ต้องใส่ก่อน login เพื่อดึง User sheet) -->
+        <div class="login-gas-section">
+            <label class="login-gas-label">
+                <i class="fas fa-link me-1"></i> Google Apps Script Web App URL
+                <span style="color:#ef4444;">*</span>
+            </label>
+            <input type="url" class="login-gas-input" id="loginGasUrl"
+                placeholder="https://script.google.com/macros/s/.../exec">
+            <div style="font-size:0.72rem;color:#b0b7c3;margin-top:4px;">
+                ต้องใส่ URL ก่อนจึงจะเข้าสู่ระบบได้ ระบบจะตรวจสอบผู้ใช้จาก Google Sheets
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MAIN PAGE (after login) ==================== -->
+<div id="mainPage">
+<div class="main-container">
+
+    <!-- Top Bar -->
+    <div class="topbar no-print animate__animated animate__fadeInDown">
+        <div class="topbar-user">
+            <div class="user-avatar" id="userAvatar">U</div>
+            <div>
+                <div class="user-info-name" id="userDisplayName">—</div>
+                <div class="user-info-role">
+                    <span class="role-badge" id="userRoleBadge">—</span>
+                    &nbsp;เข้าสู่ระบบเมื่อ <span id="userLoginTime">—</span>
+                </div>
+            </div>
+        </div>
+        <button class="btn-logout" id="btnLogout">
+            <i class="fas fa-sign-out-alt"></i> ออกจากระบบ
+        </button>
+    </div>
+
+    <!-- ค้นหาประวัติ -->
+    <div class="search-history-box animate__animated animate__fadeInDown no-print">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <label class="form-label">ค้นหาประวัติโครงการ</label>
+                <input type="text" class="form-control" id="searchProjectInput" placeholder="กรอกเลขที่โครงการ (เช่น PRJ-001/2568)">
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <button class="btn btn-search" id="btnSearchProject"><i class="fas fa-search"></i> ค้นหา</button>
+                <button class="btn btn-history ms-2" id="btnViewAllHistory"><i class="fas fa-history"></i> ดูทั้งหมด</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header-section animate__animated animate__fadeInDown">
+        <img src="https://i.postimg.cc/FHGkmGKB/NOVASOL-1/logo.png" alt="โลโก้ โนวาโซล" class="company-logo" onerror="this.style.display='none'">
+        <div class="company-name">ห้างหุ้นส่วนจำกัด โนวาโซล</div>
+        <div class="system-title">ระบบประเมินราคา Bidding</div>
+    </div>
+
+    <!-- Google Sheets URL (hidden after login, GAS URL already set) -->
+    <div class="sheets-card animate__animated animate__fadeInUp no-print admin-only" id="sheetsConfigCard">
+        <h3 class="section-title"><i class="fab fa-google"></i> เชื่อมต่อ Google Sheets</h3>
+        <div class="row align-items-end">
+            <div class="col-md-12 mb-3">
+                <label class="form-label">URL ของ Google Apps Script (Web App URL)</label>
+                <input type="url" class="form-control sheets-url-input" id="gasWebAppUrl" readonly>
+                <small class="text-muted">URL ถูกตั้งค่าจากหน้า Login แล้ว (แสดงเฉพาะ Admin)</small>
+            </div>
+        </div>
+        <div class="mt-2">
+            <div id="sheetsStatus" class="d-none alert py-2 mb-0"></div>
+        </div>
+    </div>
+
+    <!-- ฟอร์มกรอกข้อมูล -->
+    <div class="form-card animate__animated animate__fadeInUp no-print" id="formSection">
+        <form id="biddingForm">
+            <h3 class="section-title"><i class="fas fa-file-contract"></i> ข้อมูลโครงการ</h3>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">โครงการเลขที่</label>
+                    <input type="text" class="form-control" id="projectNumber" placeholder="เช่น PRJ-001/2568" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">ชื่อหน่วยงานที่เปิดประกวดราคา</label>
+                    <input type="text" class="form-control" id="agency" placeholder="กรอกชื่อหน่วยงาน" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">ราคากลาง (บาท)</label>
+                    <input type="number" class="form-control" id="centralPrice" placeholder="0.00" min="0" step="0.01">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">พื้นที่ทำงาน (ตารางเมตร)</label>
+                    <input type="number" class="form-control" id="workArea" placeholder="0.00" min="0" step="0.01">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">วันเริ่มสัญญา</label>
+                    <input type="date" class="form-control" id="startDate" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">วันสิ้นสุดสัญญา</label>
+                    <input type="date" class="form-control" id="endDate" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">รวมระยะเวลาสัญญา (เดือน) <span class="text-muted" style="font-size:0.8rem;font-weight:400;">— คำนวณอัตโนมัติ</span></label>
+                    <input type="text" class="form-control contract-period-highlight" id="contractPeriod" readonly>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">วันและเวลาทำการประกวดราคา</label>
+                    <input type="datetime-local" class="form-control" id="biddingDateTime" required>
+                </div>
+            </div>
+
+            <hr class="my-4">
+            <h3 class="section-title"><i class="fas fa-users"></i> ข้อมูลบุคลากร</h3>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">จำนวนหัวหน้าคนงาน</label>
+                    <input type="number" class="form-control" id="supervisors" value="0" min="0">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">จำนวนคนงาน</label>
+                    <input type="number" class="form-control" id="workers" value="0" min="0">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">รวมจำนวนคนงานทั้งหมด</label>
+                    <input type="text" class="form-control" id="totalWorkers" readonly>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">เงินเดือนหัวหน้าคนงาน/เดือน (บาท)</label>
+                    <input type="number" class="form-control" id="supervisorSalary" placeholder="0.00" min="0" step="0.01">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">เงินเดือนคนงาน/เดือน (บาท)</label>
+                    <input type="number" class="form-control" id="workerSalary" placeholder="0.00" min="0" step="0.01">
+                </div>
+            </div>
+
+            <hr class="my-4">
+            <h3 class="section-title"><i class="fas fa-star"></i> เงื่อนไขพิเศษ</h3>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">งานพิเศษ</label>
+                    <select class="form-select" id="specialWork">
+                        <option value="no">ไม่มี</option>
+                        <option value="yes">มี</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3" id="specialPriceDiv" style="display:none;">
+                    <label class="form-label">ราคางานพิเศษทั้งหมด (บาท)</label>
+                    <input type="number" class="form-control" id="specialPrice" placeholder="0.00" min="0" step="0.01">
+                </div>
+                <div class="col-md-6 mb-3" id="specialPriceMonthDiv" style="display:none;">
+                    <label class="form-label">ราคางานพิเศษต่อเดือน (บาท)</label>
+                    <input type="text" class="form-control" id="specialPricePerMonth" readonly>
+                </div>
+            </div>
+
+            <hr class="my-4">
+            <h3 class="section-title"><i class="fas fa-calculator"></i> ข้อมูลค่าใช้จ่าย</h3>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">ค่าประกันสังคม (%)</label>
+                    <input type="number" class="form-control" id="socialSecurityRate" value="5" step="0.01">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">ค่าบริหารจัดการ (บาท/คน/เดือน)</label>
+                    <input type="number" class="form-control" id="managementCost" placeholder="0.00" min="0" step="0.01">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">ค่าวัสดุอุปกรณ์ (บาท/คน/เดือน)</label>
+                    <input type="number" class="form-control" id="materialCost" placeholder="0.00" min="0" step="0.01">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">ภาษี VAT (%)</label>
+                    <input type="number" class="form-control" id="vatRate" value="7" step="0.01">
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <button class="btn btn-calculate" type="button" id="btnCalculate">
+                    <i class="fas fa-calculator"></i> คำนวณราคา
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- ผลลัพธ์ -->
+    <div id="resultsSection" style="display:none;">
+        <div class="text-center mb-4">
+            <h3 class="text-white"><i class="fas fa-folder-open"></i> <strong id="projectNumberShow"></strong></h3>
+        </div>
+
+        <div class="row mb-4 animate__animated animate__fadeInUp">
+            <div class="col-md-2 mb-3">
+                <div class="stat-card total-workers-card">
+                    <div class="icon-box mx-auto"><i class="fas fa-users"></i></div>
+                    <div id="totalWorkersDisplay" class="h4 mb-1">0</div>
+                    <div class="text-muted">รวมคนงาน</div>
+                </div>
+            </div>
+            <div class="col-md-2 mb-3">
+                <div class="stat-card">
+                    <div class="icon-box mx-auto"><i class="fas fa-user-tie"></i></div>
+                    <div id="supervisorsDisplay" class="h4 mb-1">0</div>
+                    <div class="text-muted">หัวหน้าคนงาน</div>
+                </div>
+            </div>
+            <div class="col-md-2 mb-3">
+                <div class="stat-card">
+                    <div class="icon-box mx-auto"><i class="fas fa-hard-hat"></i></div>
+                    <div id="workersDisplay" class="h4 mb-1">0</div>
+                    <div class="text-muted">คนงาน</div>
+                </div>
+            </div>
+            <div class="col-md-2 mb-3">
+                <div class="stat-card">
+                    <div class="icon-box mx-auto"><i class="fas fa-calendar-alt"></i></div>
+                    <div id="contractPeriodDisplay" class="h4 mb-1">0</div>
+                    <div class="text-muted">สัญญา (เดือน)</div>
+                </div>
+            </div>
+            <div class="col-md-2 mb-3">
+                <div class="stat-card">
+                    <div class="icon-box mx-auto"><i class="fas fa-money-bill-wave"></i></div>
+                    <select class="form-select form-select-sm mt-2" id="monthSelector"></select>
+                    <div id="monthlyCostDisplay" class="h4 mb-1 mt-1">฿0</div>
+                    <div class="text-muted">รายจ่าย</div>
+                </div>
+            </div>
+            <div class="col-md-2 mb-3">
+                <div class="stat-card warning-card">
+                    <div class="icon-box mx-auto"><i class="fas fa-tag"></i></div>
+                    <div id="centralPriceDisplay" class="h4 mb-1">฿0</div>
+                    <div class="text-muted">ราคากลาง</div>
+                </div>
+            </div>
+            <div class="col-md-12 mb-3">
+                <div class="stat-card" id="differenceCard">
+                    <div class="icon-box mx-auto" id="differenceIcon"><i class="fas fa-chart-line"></i></div>
+                    <div id="differenceDisplay" class="h4 mb-1">฿0</div>
+                    <div class="text-muted">ผลต่าง (ราคากลาง - รายจ่าย)</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="monthly1TableContainer" class="table-container monthly-1-table animate__animated animate__fadeInUp mb-4">
+            <h4 class="section-title"><i class="fas fa-list-ul"></i> รายการ <strong>ต่อ 1 เดือน</strong></h4>
+            <table class="table table-hover" id="monthly1Table">
+                <thead><tr><th>รายการ</th><th class="text-end">จำนวนเงิน (บาท)</th></tr></thead>
+                <tbody></tbody><tfoot></tfoot>
+            </table>
+        </div>
+
+        <div id="dynamicTableContainer" class="table-container animate__animated animate__fadeInUp">
+            <h4 class="section-title"><i class="fas fa-table"></i> รายจ่าย <span id="tableTitleMonths">—</span></h4>
+            <table class="table table-hover" id="dynamicTable">
+                <thead><tr><th>รายการ</th><th class="text-end">จำนวนเงิน (บาท)</th></tr></thead>
+                <tbody></tbody><tfoot></tfoot>
+            </table>
+        </div>
+
+        <div class="text-center mb-4 no-print">
+            <button class="btn btn-save me-2" id="btnSave"><i class="fas fa-save"></i> บันทึกประวัติ</button>
+            <button class="btn btn-print me-2" id="btnPrint"><i class="fas fa-print"></i> พิมพ์รายงาน</button>
+            <button class="btn btn-history" id="btnViewHistory"><i class="fas fa-history"></i> ดูประวัติ</button>
+        </div>
+    </div>
+
+    <!-- ประวัติ -->
+    <div id="historySection" style="display:none;">
+        <div class="table-container animate__animated animate__fadeInUp">
+            <h4 class="section-title">
+                <i class="fas fa-history"></i> ประวัติการประเมินราคา
+                <small class="text-muted" style="font-size:0.9rem;">(ข้อมูลจาก Google Sheets — เห็นเหมือนกันทุกเครื่อง)</small>
+            </h4>
+            <div class="mb-3">
+                <button class="btn btn-secondary" id="btnHideHistory"><i class="fas fa-arrow-left"></i> กลับ</button>
+                <button class="btn btn-danger ms-2 admin-only" id="btnClearHistory"><i class="fas fa-trash-alt"></i> ลบทั้งหมด</button>
+                <button class="btn btn-success ms-2" id="btnExportHistory"><i class="fas fa-file-excel"></i> ส่งออก CSV</button>
+                <button class="btn btn-warning ms-2" id="btnFixData"><i class="fas fa-sync-alt"></i> รีเฟรชข้อมูล</button>
+            </div>
+            <table class="table table-hover" id="historyTable">
+                <thead>
+                    <tr>
+                        <th>โครงการเลขที่</th><th>สถานะ</th><th>วันที่บันทึก</th>
+                        <th>หน่วยงาน</th><th class="text-end">ราคากลาง</th>
+                        <th class="text-center">เดือน</th><th class="text-end">รายจ่าย</th>
+                        <th class="text-end">ผลต่าง</th><th class="text-center">จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+</div><!-- /.main-container -->
+</div><!-- /#mainPage -->
+
+<!-- Modal: อัปเดตสถานะ -->
+<div class="modal fade" id="statusModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:15px;">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-edit"></i> อัปเดตสถานะโครงการ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-2">โครงการ: <strong id="modalProjectNumber"></strong></p>
+                <p class="mb-3">วันที่บันทึก: <small id="modalSavedDateText"></small></p>
+                <input type="hidden" id="modalItemId">
+                <div class="mb-3">
+                    <label class="form-label">สถานะการประมูล</label>
+                    <select class="form-select" id="modalStatusSelect">
+                        <option value="รอดำเนินการ">รอดำเนินการ</option>
+                        <option value="ชนะ">ชนะ</option>
+                        <option value="แพ้">แพ้</option>
+                        <option value="ตกคุณสมบัติ">ตกคุณสมบัติ</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">ราคาที่ชนะการประมูล (บาท)</label>
+                    <input type="number" class="form-control" id="modalWinningPrice" placeholder="0.00" min="0" step="0.01">
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top:none;">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                <button type="button" class="btn btn-primary" id="btnSaveStatus">
+                    <i class="fas fa-save"></i> บันทึก
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: รายละเอียด -->
+<div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content" style="border-radius:15px;">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-info-circle"></i> รายละเอียดโครงการ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="detailModalBody"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/v/bs5/dt-2.0.8/r-3.0.2/datatables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+// ==================== STATE ====================
+let currentCalculation    = null;
+let cloudHistory          = [];
+let historyTable          = null;
+let currentMonthlyCost    = 0;
+let selectedMonthsForSave = 1;
+let contractMonths        = 0;
+let statusModalInstance   = null;
+let detailModalInstance   = null;
+
+// ==================== SESSION ====================
+// เก็บ session ใน sessionStorage (หมดเมื่อปิดแท็บ)
+// เก็บแค่ข้อมูลที่จำเป็น ไม่เก็บรหัสผ่าน
+let currentUser = null;  // { username, displayName, role, email }
+
+function saveSession(user) {
+    currentUser = user;
+    sessionStorage.setItem('novasol_session', JSON.stringify(user));
+    sessionStorage.setItem('novasol_gas_url', $('#loginGasUrl').val().trim());
+}
+
+function loadSession() {
+    const raw = sessionStorage.getItem('novasol_session');
+    if (!raw) return null;
+    try { return JSON.parse(raw); } catch { return null; }
+}
+
+function clearSession() {
+    currentUser = null;
+    sessionStorage.removeItem('novasol_session');
+    sessionStorage.removeItem('novasol_gas_url');
+}
+
+function getGasUrlFromSession() {
+    return sessionStorage.getItem('novasol_gas_url') || $('#gasWebAppUrl').val().trim();
+}
+
+// ==================== UTILS ====================
+function formatCurrency(num) {
+    if (isNaN(num)) return '0.00';
+    return new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
+}
+function pFloat(id) { return parseFloat($(`#${id}`).val()) || 0; }
+
+// ==================== GAS CALL ====================
+function getGasUrl() { return getGasUrlFromSession(); }
+
+function isValidGasUrl(url) {
+    return url && url.startsWith('https://script.google.com/macros/s/');
+}
+
+function showSheetsStatus(msg, type) {
+    $('#sheetsStatus')
+        .removeClass('d-none alert-success alert-danger alert-warning alert-info')
+        .addClass(`alert alert-${type}`)
+        .html(msg);
+}
+function hideSheetsStatus() { $('#sheetsStatus').addClass('d-none'); }
+
+async function callGas(action, payload) {
+    const url = getGasUrl();
+    if (!isValidGasUrl(url)) return null;
+    const params = new URLSearchParams({
+        action:  action,
+        payload: JSON.stringify(payload || {})
+    });
+    try {
+        const res  = await fetch(`${url}?${params.toString()}`, { method: 'GET', cache: 'no-cache' });
+        const json = await res.json();
+        return json;
+    } catch (err) {
+        console.error('GAS Error:', err);
+        return null;
+    }
+}
+
+// ==================== LOGIN ====================
+async function doLogin() {
+    const username = $('#loginUsername').val().trim();
+    const password = $('#loginPassword').val();
+    const gasUrl   = $('#loginGasUrl').val().trim();
+
+    // ซ่อน error เดิม
+    $('#loginError').hide().text('');
+
+    if (!username || !password) {
+        showLoginError('กรุณากรอกชื่อผู้ใช้งานและรหัสผ่าน');
+        return;
+    }
+    if (!isValidGasUrl(gasUrl)) {
+        showLoginError('กรุณาใส่ Google Apps Script URL ให้ถูกต้องก่อนเข้าสู่ระบบ');
+        return;
+    }
+
+    const btn = $('#btnLogin');
+    btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i> กำลังตรวจสอบ...');
+
+    // เรียก GAS action: login
+    const result = await callGasWithUrl(gasUrl, 'login', { username, password });
+
+    btn.prop('disabled', false).html('<i class="fas fa-sign-in-alt me-2"></i> เข้าสู่ระบบ');
+
+    if (!result) {
+        showLoginError('ไม่สามารถเชื่อมต่อ Google Apps Script ได้ กรุณาตรวจสอบ URL');
+        return;
+    }
+    if (result.status !== 'success') {
+        showLoginError(result.message || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
+        return;
+    }
+
+    // Login สำเร็จ
+    const user = result.user;
+    saveSession(user);
+    enterMainPage(user);
+}
+
+// callGas โดยรับ url ตรงๆ (ใช้ตอน login ก่อนที่ session จะถูกตั้ง)
+async function callGasWithUrl(url, action, payload) {
+    const params = new URLSearchParams({
+        action:  action,
+        payload: JSON.stringify(payload || {})
+    });
+    try {
+        const res  = await fetch(`${url}?${params.toString()}`, { method: 'GET', cache: 'no-cache' });
+        const json = await res.json();
+        return json;
+    } catch (err) {
+        console.error('GAS Login Error:', err);
+        return null;
+    }
+}
+
+function showLoginError(msg) {
+    $('#loginError').text(msg).show();
+}
+
+function enterMainPage(user) {
+    // อัปเดต UI
+    const initials = (user.displayName || user.username || 'U').charAt(0).toUpperCase();
+    $('#userAvatar').text(initials);
+    $('#userDisplayName').text(user.displayName || user.username);
+
+    const isAdmin = (user.role || '').toLowerCase() === 'admin';
+    $('#userRoleBadge')
+        .text(isAdmin ? 'Admin' : 'User')
+        .removeClass('role-admin role-user')
+        .addClass(isAdmin ? 'role-admin' : 'role-user');
+
+    const now = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+    $('#userLoginTime').text(now);
+
+    // ซ่อน/แสดง admin-only elements
+    if (isAdmin) {
+        $('.admin-only').show();
+    } else {
+        $('.admin-only').hide();
+    }
+
+    // แสดง GAS URL ใน admin card
+    $('#gasWebAppUrl').val(getGasUrl());
+
+    // สลับหน้า
+    $('#loginPage').fadeOut(300, function() {
+        $('#mainPage').fadeIn(400);
+    });
+}
+
+function doLogout() {
+    Swal.fire({
+        title: 'ออกจากระบบ?',
+        text: 'ยืนยันการออกจากระบบ',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'ออกจากระบบ',
+        cancelButtonText: 'ยกเลิก'
+    }).then(r => {
+        if (!r.isConfirmed) return;
+        clearSession();
+        currentCalculation = null;
+        cloudHistory = [];
+        $('#mainPage').fadeOut(300, function() {
+            // reset form
+            $('#biddingForm')[0].reset();
+            $('#resultsSection, #historySection').hide();
+            $('#formSection').show();
+            $('#loginUsername').val('');
+            $('#loginPassword').val('');
+            $('#loginPage').fadeIn(400);
+        });
+    });
+}
+
+// ==================== CONTRACT PERIOD ====================
+function calculateContractPeriod() {
+    const startVal = $('#startDate').val();
+    const endVal   = $('#endDate').val();
+    if (!startVal || !endVal) { contractMonths = 0; $('#contractPeriod').val(''); return 0; }
+    const start = new Date(startVal);
+    const end   = new Date(endVal);
+    if (end < start) { $('#contractPeriod').val('วันที่ไม่ถูกต้อง'); contractMonths = 0; return 0; }
+    const months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth()) + 1;
+    contractMonths = months;
+    $('#contractPeriod').val(months + ' เดือน');
+    return months;
+}
+
+function buildMonthSelector(contractM) {
+    const sel = $('#monthSelector');
+    sel.empty();
+    for (let m = 1; m <= 12; m++) {
+        const label = m === contractM ? `${m} เดือน ★ (ตามสัญญา)` : `${m} เดือน`;
+        const opt = $('<option>').val(m).text(label);
+        if (m === contractM) opt.addClass('contract-month');
+        sel.append(opt);
+    }
+    const def = (contractM >= 1 && contractM <= 12) ? contractM : 12;
+    sel.val(def);
+    selectedMonthsForSave = def;
+}
+
+function calculateTotalWorkers() {
+    $('#totalWorkers').val(pFloat('supervisors') + pFloat('workers'));
+}
+
+function calculateSpecialPricePerMonth() {
+    const months = calculateContractPeriod();
+    const sp = pFloat('specialPrice');
+    if (months > 0 && $('#specialWork').val() === 'yes') {
+        const ppm = sp / months;
+        $('#specialPricePerMonth').val(formatCurrency(ppm));
+        return ppm;
+    }
+    $('#specialPricePerMonth').val(formatCurrency(0));
+    return 0;
+}
+
+// ==================== CALCULATE ====================
+function calculateAll() {
+    if (!$('#biddingForm')[0].checkValidity()) {
+        $('#biddingForm')[0].reportValidity();
+        Swal.fire("ข้อมูลไม่ครบถ้วน", "กรุณากรอกข้อมูลในช่องที่จำเป็นให้ครบถ้วน", "warning");
+        return;
+    }
+    const contractPeriod = calculateContractPeriod();
+    const totalWorkers   = pFloat('totalWorkers');
+    if (totalWorkers <= 0) { Swal.fire("ไม่มีคนงาน", "กรุณากรอกจำนวนคนงานอย่างน้อย 1 คน", "warning"); return; }
+    if (contractPeriod <= 0) { Swal.fire("วันที่สัญญาไม่ถูกต้อง", "กรุณาตรวจสอบวันเริ่มและวันสิ้นสุดสัญญา", "warning"); return; }
+
+    const supervisors          = pFloat('supervisors');
+    const workers              = pFloat('workers');
+    const supervisorSalary     = pFloat('supervisorSalary');
+    const workerSalary         = pFloat('workerSalary');
+    const specialPricePerMonth = calculateSpecialPricePerMonth();
+    const socialSecurityRate   = pFloat('socialSecurityRate') / 100;
+    const managementCost       = pFloat('managementCost');
+    const materialCost         = pFloat('materialCost');
+    const vatRate              = pFloat('vatRate') / 100;
+
+    const totalSalary    = (supervisors * supervisorSalary) + (workers * workerSalary);
+    const avgSalary      = totalWorkers > 0 ? totalSalary / totalWorkers : 0;
+    const socialSecurity = avgSalary * socialSecurityRate * totalWorkers;
+    const management     = managementCost * totalWorkers;
+    const material       = (materialCost + specialPricePerMonth) * totalWorkers;
+    const total          = totalSalary + socialSecurity + management + material;
+    const vat            = total * vatRate;
+    const netTotal       = total + vat;
+
+    currentCalculation = {
+        projectNumber:   $('#projectNumber').val(),
+        agency:          $('#agency').val(),
+        centralPrice:    pFloat('centralPrice'),
+        workArea:        pFloat('workArea'),
+        startDate:       $('#startDate').val(),
+        endDate:         $('#endDate').val(),
+        contractPeriod,
+        biddingDateTime: $('#biddingDateTime').val(),
+        supervisors, workers, totalWorkers, supervisorSalary, workerSalary,
+        specialWork:         $('#specialWork').val(),
+        specialPrice:        pFloat('specialPrice'),
+        specialPricePerMonth,
+        socialSecurityRate:  pFloat('socialSecurityRate'),
+        managementCost, materialCost,
+        vatRate:             pFloat('vatRate'),
+        monthly: { salary: totalSalary, socialSecurity, management, material, total, vat, netTotal }
+    };
+
+    buildMonthSelector(contractPeriod);
+    selectedMonthsForSave = parseInt($('#monthSelector').val());
+    displayResults(currentCalculation);
+    Swal.fire("คำนวณสำเร็จ!", `ระยะเวลาสัญญา ${contractPeriod} เดือน`, "success");
+}
+
+// ==================== DISPLAY ====================
+function updateDifferenceCard(difference) {
+    const card = $('#differenceCard'), disp = $('#differenceDisplay'), icon = $('#differenceIcon');
+    if (isNaN(difference)) { disp.text('Error'); card.removeClass('bg-success bg-danger'); return; }
+    if (difference > 0) {
+        card.removeClass('bg-danger').addClass('bg-success');
+        icon.html('<i class="fas fa-arrow-up"></i>');
+        disp.text('฿' + formatCurrency(difference));
+    } else if (difference < 0) {
+        card.removeClass('bg-success').addClass('bg-danger');
+        icon.html('<i class="fas fa-arrow-down"></i>');
+        disp.text('฿' + formatCurrency(Math.abs(difference)));
+    } else {
+        card.removeClass('bg-success bg-danger');
+        icon.html('<i class="fas fa-balance-scale"></i>');
+        disp.text('฿0.00');
+    }
+}
+
+function generateTable(tableId, data, multiplier, vatRatePercent) {
+    $(`#${tableId} tbody`).html(`
+        <tr><td>ค่าแรงทั้งหมด</td><td class="text-end">${formatCurrency(data.salary * multiplier)}</td></tr>
+        <tr><td>ค่าประกันสังคม</td><td class="text-end">${formatCurrency(data.socialSecurity * multiplier)}</td></tr>
+        <tr><td>ค่าบริหารจัดการ</td><td class="text-end">${formatCurrency(data.management * multiplier)}</td></tr>
+        <tr><td>ค่าวัสดุอุปกรณ์ (รวมงานพิเศษ)</td><td class="text-end">${formatCurrency(data.material * multiplier)}</td></tr>
+    `);
+    $(`#${tableId} tfoot`).html(`
+        <tr><td><strong>รวมจ่าย (ก่อน VAT)</strong></td><td class="text-end"><strong>${formatCurrency(data.total * multiplier)}</strong></td></tr>
+        <tr><td>ภาษี VAT (${vatRatePercent}%)</td><td class="text-end">${formatCurrency(data.vat * multiplier)}</td></tr>
+        <tr class="table-primary"><td><strong>รวมจ่ายสุทธิ</strong></td><td class="text-end"><strong>${formatCurrency(data.netTotal * multiplier)}</strong></td></tr>
+    `);
+}
+
+function updateMonthlyDisplay() {
+    if (!currentCalculation) return;
+    const m = parseInt($('#monthSelector').val());
+    selectedMonthsForSave = m;
+    currentMonthlyCost = currentCalculation.monthly.netTotal * m;
+    $('#monthlyCostDisplay').text('฿' + formatCurrency(currentMonthlyCost));
+    updateDifferenceCard(currentCalculation.centralPrice - currentMonthlyCost);
+    generateTable('dynamicTable', currentCalculation.monthly, m, currentCalculation.vatRate);
+    $('#tableTitleMonths').text(m + ' เดือน');
+}
+
+function displayResults(calc) {
+    $('#projectNumberShow').text(calc.projectNumber);
+    $('#totalWorkersDisplay').text(calc.totalWorkers);
+    $('#supervisorsDisplay').text(calc.supervisors);
+    $('#workersDisplay').text(calc.workers);
+    $('#contractPeriodDisplay').text(calc.contractPeriod);
+    $('#centralPriceDisplay').text('฿' + formatCurrency(calc.centralPrice));
+    currentMonthlyCost = calc.monthly.netTotal * selectedMonthsForSave;
+    $('#monthlyCostDisplay').text('฿' + formatCurrency(currentMonthlyCost));
+    updateDifferenceCard(calc.centralPrice - currentMonthlyCost);
+    generateTable('monthly1Table', calc.monthly, 1, calc.vatRate);
+    updateMonthlyDisplay();
+    $('#resultsSection').slideDown();
+    $('html, body').animate({ scrollTop: $('#resultsSection').offset().top - 20 }, 800);
+}
+
+// ==================== SAVE ====================
+$('#btnSave').on('click', async function () {
+    if (!currentCalculation) { Swal.fire('ข้อผิดพลาด', 'กรุณากดคำนวณราคาก่อนบันทึก', 'error'); return; }
+
+    Swal.fire({ title: 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+    const result = await callGas('save', {
+        data:           currentCalculation,
+        selectedMonths: selectedMonthsForSave,
+        savedBy:        currentUser ? (currentUser.displayName || currentUser.username) : 'ไม่ระบุ'
+    });
+
+    if (result && result.status === 'success') {
+        Swal.fire({
+            title: 'บันทึกสำเร็จ!',
+            html: `บันทึกโครงการ <strong>${currentCalculation.projectNumber}</strong> ลง Google Sheets เรียบร้อยแล้ว<br>
+                   <small>บันทึกเมื่อ: ${result.savedDate || ''}</small><br>
+                   <small><i class="fas fa-user"></i> โดย: ${currentUser ? (currentUser.displayName || currentUser.username) : '-'}</small>`,
+            icon: 'success',
+            confirmButtonText: 'ตกลง'
+        });
+    } else {
+        Swal.fire('บันทึกไม่สำเร็จ', (result && result.message) ? result.message : 'ไม่สามารถเชื่อมต่อ Google Apps Script ได้', 'error');
+    }
+});
+
+// ==================== HISTORY ====================
+async function loadCloudHistory() {
+    showSheetsStatus('<i class="fas fa-spinner fa-spin"></i> กำลังโหลดประวัติ...', 'info');
+    const result = await callGas('getHistory', {});
+    if (result && result.status === 'success') {
+        cloudHistory = result.data || [];
+        showSheetsStatus(`<i class="fas fa-check-circle"></i> โหลดประวัติสำเร็จ (${cloudHistory.length} รายการ)`, 'success');
+        return cloudHistory;
+    }
+    showSheetsStatus('<i class="fas fa-exclamation-circle"></i> โหลดประวัติไม่สำเร็จ', 'danger');
+    cloudHistory = [];
+    return cloudHistory;
+}
+
+async function displayHistory() {
+    await loadCloudHistory();
+    if ($.fn.DataTable.isDataTable('#historyTable')) historyTable.destroy();
+
+    const isAdmin = currentUser && (currentUser.role || '').toLowerCase() === 'admin';
+
+    historyTable = $('#historyTable').DataTable({
+        data: cloudHistory,
+        columns: [
+            { data: 'projectNumber', defaultContent: '-' },
+            {
+                data: 'status', className: 'text-center', defaultContent: 'รอดำเนินการ',
+                render: function (d) {
+                    const s = d || 'รอดำเนินการ';
+                    let cls = 'status-pending';
+                    if (s === 'ชนะ') cls = 'status-win';
+                    if (s === 'แพ้') cls = 'status-loss';
+                    if (s === 'ตกคุณสมบัติ') cls = 'status-disqualified';
+                    return `<span class="status-badge ${cls}">${s}</span>`;
+                }
+            },
+            { data: 'savedDate', defaultContent: '-' },
+            { data: 'agency',    defaultContent: '-' },
+            { data: 'centralPrice', className: 'text-end', defaultContent: '0', render: d => '฿' + formatCurrency(d || 0) },
+            { data: 'selectedMonths', className: 'text-center', defaultContent: '-' },
+            { data: 'monthlyCost',  className: 'text-end', defaultContent: '0', render: d => '฿' + formatCurrency(d || 0) },
+            {
+                data: 'difference', className: 'text-end', defaultContent: '0',
+                render: function (d) {
+                    const diff = parseFloat(d) || 0;
+                    const cls  = diff > 0 ? 'difference-profit' : diff < 0 ? 'difference-loss' : '';
+                    return `<span class="${cls}">฿${formatCurrency(Math.abs(diff))}</span>`;
+                }
+            },
+            {
+                data: null, orderable: false, className: 'text-center',
+                render: function (data, type, row, meta) {
+                    const deleteBtn = isAdmin
+                        ? `<button class="btn-delete ms-1" onclick="deleteHistoryItem(${meta.row})" title="ลบ"><i class="fas fa-trash"></i></button>`
+                        : '';
+                    return `
+                        <button class="btn btn-info btn-sm me-1"    onclick="viewDetails(${meta.row})"    title="ดูรายละเอียด"><i class="fas fa-eye"></i></button>
+                        <button class="btn btn-warning btn-sm me-1" onclick="openStatusModal(${meta.row})" title="อัปเดตสถานะ"><i class="fas fa-edit"></i></button>
+                        ${deleteBtn}
+                    `;
+                }
+            }
+        ],
+        responsive: true, order: [],
+        language: { url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/th.json', emptyTable: 'ไม่มีประวัติการประเมินราคา' }
+    });
+}
+
+// ==================== MODAL: รายละเอียด ====================
+window.viewDetails = function (rowIndex) {
+    const item = cloudHistory[rowIndex];
+    if (!item) { Swal.fire('ข้อผิดพลาด', 'ไม่พบข้อมูล', 'error'); return; }
+    $('#detailModalBody').html(`
+        <div class="row">
+            <div class="col-12 mb-3"><h5 class="text-primary"><i class="fas fa-folder-open"></i> ${item.projectNumber}</h5></div>
+            <div class="col-md-6">
+                <p><strong>หน่วยงาน:</strong> ${item.agency}</p>
+                <p><strong>ราคากลาง:</strong> ฿${formatCurrency(item.centralPrice)}</p>
+                <p><strong>พื้นที่ทำงาน:</strong> ${formatCurrency(item.workArea)} ตร.ม.</p>
+                <p><strong>ระยะเวลาสัญญา:</strong> ${item.contractPeriod} เดือน</p>
+                <p><strong>วันเริ่มสัญญา:</strong> ${item.startDate || '-'}</p>
+                <p><strong>วันสิ้นสุดสัญญา:</strong> ${item.endDate || '-'}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>จำนวนหัวหน้าคนงาน:</strong> ${item.supervisors} คน</p>
+                <p><strong>จำนวนคนงาน:</strong> ${item.workers} คน</p>
+                <p><strong>รวมคนงานทั้งหมด:</strong> ${item.totalWorkers} คน</p>
+                <p><strong>เงินเดือนหัวหน้า:</strong> ฿${formatCurrency(item.supervisorSalary)}</p>
+                <p><strong>เงินเดือนคนงาน:</strong> ฿${formatCurrency(item.workerSalary)}</p>
+            </div>
+            <div class="col-12 mt-3">
+                <h6 class="text-secondary">ค่าใช้จ่าย</h6>
+                <p><strong>ค่าประกันสังคม:</strong> ${item.socialSecurityRate}%</p>
+                <p><strong>ค่าบริหารจัดการ:</strong> ฿${formatCurrency(item.managementCost)}/คน/เดือน</p>
+                <p><strong>ค่าวัสดุอุปกรณ์:</strong> ฿${formatCurrency(item.materialCost)}/คน/เดือน</p>
+                <p><strong>VAT:</strong> ${item.vatRate}%</p>
+            </div>
+            <div class="col-12 mt-3">
+                <h6 class="text-success">สรุปการคำนวณ</h6>
+                <p><strong>ระยะเวลาคำนวณ:</strong> ${item.selectedMonths} เดือน</p>
+                <p><strong>รายจ่ายทั้งหมด:</strong> ฿${formatCurrency(item.monthlyCost)}</p>
+                <p><strong>ผลต่าง:</strong> <span class="${item.difference > 0 ? 'difference-profit' : 'difference-loss'}">฿${formatCurrency(Math.abs(item.difference))}</span></p>
+                ${item.savedBy ? `<p><strong>บันทึกโดย:</strong> ${item.savedBy}</p>` : ''}
+            </div>
+            ${item.winningPrice ? `<div class="col-12 mt-3"><h6 class="text-info">ผลการประมูล</h6><p><strong>ราคาที่ชนะ:</strong> ฿${formatCurrency(item.winningPrice)}</p></div>` : ''}
+            ${(item.pdfUrl && String(item.pdfUrl).startsWith('http')) ? `<div class="col-12 mt-3"><a href="${item.pdfUrl}" target="_blank" class="btn btn-outline-primary btn-sm"><i class="fas fa-file-pdf"></i> เปิด PDF รายงาน</a></div>` : ''}
+        </div>`);
+    if (!detailModalInstance) detailModalInstance = new bootstrap.Modal(document.getElementById('detailModal'));
+    detailModalInstance.show();
+};
+
+// ==================== MODAL: อัปเดตสถานะ ====================
+window.openStatusModal = function (rowIndex) {
+    const item = cloudHistory[rowIndex];
+    if (!item) return;
+    $('#modalItemId').val(item.id);
+    $('#modalSavedDateText').text(item.savedDate);
+    $('#modalProjectNumber').text(item.projectNumber);
+    $('#modalStatusSelect').val(item.status || 'รอดำเนินการ');
+    $('#modalWinningPrice').val(item.winningPrice || '');
+    if (!statusModalInstance) statusModalInstance = new bootstrap.Modal(document.getElementById('statusModal'));
+    statusModalInstance.show();
+};
+
+$('#btnSaveStatus').on('click', async function () {
+    const id              = $('#modalItemId').val();
+    const newStatus       = $('#modalStatusSelect').val();
+    const newWinningPrice = pFloat('modalWinningPrice');
+    if (!id) { Swal.fire('เกิดข้อผิดพลาด', 'ไม่พบรหัสรายการ', 'error'); return; }
+
+    statusModalInstance.hide();
+    Swal.fire({ title: 'กำลังอัปเดต...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+    const result = await callGas('updateStatus', { id, newStatus, newWinningPrice });
+
+    if (result && result.status === 'success') {
+        await displayHistory();
+        Swal.fire({
+            title: 'อัปเดตสำเร็จ!',
+            html: `อัปเดตสถานะเป็น "<strong>${newStatus}</strong>" แล้ว`,
+            icon: 'success'
+        });
+    } else {
+        Swal.fire('อัปเดตไม่สำเร็จ', (result && result.message) ? result.message : 'ไม่สามารถเชื่อมต่อได้', 'error');
+    }
+});
+
+window.deleteHistoryItem = function (rowIndex) {
+    const item = cloudHistory[rowIndex];
+    if (!item) return;
+    Swal.fire({
+        title: 'ยืนยันการลบ?', text: 'รายการนี้จะถูกลบออกจาก Google Sheets ถาวร!', icon: 'warning',
+        showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#6b7280',
+        confirmButtonText: 'ลบ', cancelButtonText: 'ยกเลิก'
+    }).then(async result => {
+        if (!result.isConfirmed) return;
+        const res = await callGas('delete', { id: item.id });
+        if (res && res.status === 'success') {
+            await displayHistory();
+            Swal.fire('ลบแล้ว!', '', 'success');
+        } else {
+            Swal.fire('ลบไม่สำเร็จ', (res && res.message) ? res.message : 'ไม่สามารถเชื่อมต่อได้', 'error');
+        }
+    });
+};
+
+async function searchAndShowHistory(query) {
+    $('#formSection, #resultsSection').slideUp();
+    $('#historySection').slideDown();
+    await displayHistory();
+    historyTable.search(query).draw();
+    const found = cloudHistory.some(item => item.projectNumber && item.projectNumber.toLowerCase().includes(query.toLowerCase()));
+    if (!found) Swal.fire('ไม่พบโครงการ', `ไม่พบเลขที่โครงการ "${query}" ในประวัติ`, 'info');
+}
+
+function exportToCSV() {
+    if (!cloudHistory.length) { Swal.fire('ไม่มีข้อมูล', '', 'warning'); return; }
+    let csv = '\uFEFF';
+    csv += 'โครงการเลขที่,สถานะ,วันที่บันทึก,หน่วยงาน,ราคากลาง,เดือน,รายจ่าย,ผลต่าง,ราคาที่ชนะ\n';
+    cloudHistory.forEach(item => {
+        csv += `"${item.projectNumber}","${item.status || 'รอดำเนินการ'}","${item.savedDate}","${item.agency}",`;
+        csv += `${item.centralPrice},${item.selectedMonths},${item.monthlyCost},${item.difference},"${item.winningPrice || ''}"\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href  = URL.createObjectURL(blob);
+    link.download = `ประวัติการประเมินราคา_${new Date().toISOString().split('T')[0]}.csv`;
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    Swal.fire('ส่งออกสำเร็จ!', '', 'success');
+}
+
+// ==================== EVENT HANDLERS ====================
+$(document).ready(function () {
+
+    // ---- LOGIN ----
+    // โหลด GAS URL ที่เคยบันทึกไว้
+    const savedGasUrl = localStorage.getItem('gasWebAppUrl') ||
+        'https://script.google.com/macros/s/AKfycbx3CFaO5FxqTGfpEWH5Lns8m4YGMvSJtfIHuqeJDHaJWJPu50vRIUyhwjxF-qVZ-iqffw/exec';
+    $('#loginGasUrl').val(savedGasUrl);
+
+    $('#loginGasUrl').on('change', function () {
+        localStorage.setItem('gasWebAppUrl', $(this).val().trim());
+    });
+
+    $('#btnLogin').on('click', doLogin);
+    $('#loginUsername, #loginPassword, #loginGasUrl').on('keypress', function (e) {
+        if (e.which === 13) doLogin();
+    });
+
+    // Toggle password visibility
+    $('#togglePwd').on('click', function () {
+        const inp  = $('#loginPassword');
+        const icon = $('#togglePwdIcon');
+        if (inp.attr('type') === 'password') {
+            inp.attr('type', 'text');
+            icon.removeClass('fa-eye').addClass('fa-eye-slash');
+        } else {
+            inp.attr('type', 'password');
+            icon.removeClass('fa-eye-slash').addClass('fa-eye');
+        }
+    });
+
+    $('#btnLogout').on('click', doLogout);
+
+    // ตรวจ session ที่มีอยู่ (กรณีรีเฟรชหน้า)
+    const existingSession = loadSession();
+    if (existingSession) {
+        // restore gas url ก่อน
+        const savedUrl = sessionStorage.getItem('novasol_gas_url');
+        if (savedUrl) $('#loginGasUrl').val(savedUrl);
+        currentUser = existingSession;
+        $('#loginPage').hide();
+        enterMainPage(existingSession);
+    }
+
+    // ---- FORM ----
+    $('#startDate, #endDate').on('change', function () { calculateContractPeriod(); calculateSpecialPricePerMonth(); });
+    $('#specialPrice').on('change', calculateSpecialPricePerMonth);
+    $('#supervisors, #workers').on('input', calculateTotalWorkers);
+    $('#specialWork').on('change', function () {
+        if (this.value === 'yes') { $('#specialPriceDiv, #specialPriceMonthDiv').slideDown(); }
+        else { $('#specialPriceDiv, #specialPriceMonthDiv').slideUp(); $('#specialPrice').val(0); $('#specialPricePerMonth').val(''); }
+    });
+
+    buildMonthSelector(0);
+    $('#monthSelector').on('change', updateMonthlyDisplay);
+    $('#btnCalculate').on('click', calculateAll);
+
+    // ---- SEARCH ----
+    $('#btnSearchProject').on('click', function () {
+        const q = $('#searchProjectInput').val().trim();
+        if (!q) { Swal.fire('กรุณากรอกเลขที่โครงการ', '', 'warning'); return; }
+        searchAndShowHistory(q);
+    });
+    $('#searchProjectInput').on('keypress', function (e) { if (e.which === 13) { e.preventDefault(); $('#btnSearchProject').click(); } });
+
+    // ---- HISTORY ----
+    $('#btnViewAllHistory, #btnViewHistory').on('click', function () {
+        $('#formSection, #resultsSection').slideUp();
+        $('#historySection').slideDown();
+        displayHistory();
+        $('html, body').animate({ scrollTop: $('#historySection').offset().top - 20 }, 800);
+    });
+    $('#btnHideHistory').on('click', function () {
+        $('#historySection').slideUp();
+        $('#formSection').slideDown();
+        if (currentCalculation) $('#resultsSection').slideDown();
+    });
+    $('#btnClearHistory').on('click', function () {
+        Swal.fire({
+            title: 'ลบประวัติทั้งหมด?', text: 'ข้อมูลทั้งหมดใน Google Sheets จะถูกลบอย่างถาวร!', icon: 'warning',
+            showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#6b7280',
+            confirmButtonText: 'ลบทั้งหมด', cancelButtonText: 'ยกเลิก'
+        }).then(async r => {
+            if (!r.isConfirmed) return;
+            const res = await callGas('deleteAll', {});
+            if (res && res.status === 'success') {
+                await displayHistory();
+                Swal.fire('ลบแล้ว!', '', 'success');
+            } else {
+                Swal.fire('ลบไม่สำเร็จ', (res && res.message) ? res.message : 'ไม่สามารถเชื่อมต่อได้', 'error');
+            }
+        });
+    });
+    $('#btnExportHistory').on('click', exportToCSV);
+    $('#btnFixData').on('click', function () { displayHistory(); });
+    $('#btnPrint').on('click', function () {
+        if (!currentCalculation) { Swal.fire('ข้อผิดพลาด', 'กรุณากดคำนวณราคาก่อน', 'error'); return; }
+        window.print();
+    });
+
+    // ตั้งค่าวันเริ่มต้น
+    const today = new Date().toISOString().split('T')[0];
+    $('#startDate').val(today);
+    const end = new Date(); end.setFullYear(end.getFullYear() + 1);
+    $('#endDate').val(end.toISOString().split('T')[0]);
+    calculateContractPeriod();
+});
+</script>
+</body>
+</html>
